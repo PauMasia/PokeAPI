@@ -42,7 +42,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         layView=binding.listViewTodo
-        var testTxt: ArrayList<Pokemon> = ArrayList<Pokemon>()
+        var testTxt: ArrayList<Pokemon> = ArrayList()
 
         try {
             var adapter2: ArrayAdapter<Pokemon> = ArrayAdapter<Pokemon>(
@@ -52,7 +52,7 @@ class FirstFragment : Fragment() {
                 testTxt
             )
             layView.adapter=adapter2
-            refresh(adapter2);
+               refresh(adapter2);
         }catch(e:Exception){
             e.printStackTrace()
         }

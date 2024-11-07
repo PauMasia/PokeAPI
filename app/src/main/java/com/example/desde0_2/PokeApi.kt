@@ -10,56 +10,48 @@ import kotlin.reflect.typeOf
 
 
 class PokeApi {
-    var BASE_URL: String = "https://pokeapi.co/api/v2/pokemon" // URL comú a totes les crides.
 
-    fun getPokemon(): ArrayList<Pokemon>? {// que s'ha d'agregar a les crides.
-        var builtUri: Uri = Uri.parse(BASE_URL) // Creem l'objecte Uri
-            .buildUpon() // agreguem ?api_key=<API_KEY>
-            .build() // construïm l'objecte}
+    fun getPokemon(): ArrayList<Pokemon> {
+        var arrayPokemon: ArrayList<Pokemon> = ArrayList()
+        for (i in 1 .. 134){
+            val BASE_URL: String = "https://pokeapi.co/api/v2/pokemon/"+i +"/"// URL comú a totes les crides.
+                 // que s'ha d'agregar a les crides.
+            val builtUri: Uri = Uri.parse(BASE_URL) // Creem l'objecte Uri
+                .buildUpon() // agreguem ?api_key=<API_KEY>
+                .build() // construïm l'objecte}
 
-        var url: String = builtUri.toString()
-        var response= doCall(url)
-        return response
+            val item: String = builtUri.toString()
+            var response= doCall(item)
+            if (response != null) {
+                arrayPokemon.add(response)
+            }
+        }
+        return arrayPokemon
     }
     // que s'ha d'agregar a les crides.
-    private fun doCall(url: String): ArrayList<Pokemon>? {
+    private fun doCall(url: String): Pokemon? {
         try {
-            val JsonResponse:String = HttpUtils.get(url).toString()
-            return processJson(JsonResponse)
+            val jsonFin:String = HttpUtils.get(url).toString()
+            return processJson(jsonFin)
         } catch (e: IOException) {
             e.printStackTrace()
         }
         return null
     }
-    fun processJson(jsonResponse: String): ArrayList<Pokemon> {
-        var lista : ArrayList<Pokemon> = ArrayList<Pokemon>()
+    fun processJson(jsonResponse: String): Pokemon? {
         try {
-            var data =JSONObject(jsonResponse)
-            var res= data.getJSONArray("results")
-            for (i in 0 .. res.length()){
-
-
-                val pokemonActJson= res.getJSONObject(i)
-
-                val urlSingle: String = pokemonActJson.getString("url")
-                val datosPokemon: ArrayList<String>? = getPokemonUnico(urlSingle, pokemonActJson)
-
-                Log.d("kuklux", datosPokemon.toString())
+            val data =JSONObject(jsonResponse)
 
                 val pokemonActObj=Pokemon(
-                    pokemonActJson.getString("name"),
-                    "Si",
+                    data.getString("name"),
+                    "a",
                     "tiposPokemon[1]","Skill"
-
                 )
-                lista.add(pokemonActObj)
-            }
-            Log.e("kkk", lista.toString())
-
+            return pokemonActObj
         }catch (a : Exception){
             a.printStackTrace()
         }
-        return lista
+        return null
     }
 
     fun getPokemonUnico(url: String, pokemonActJson: JSONObject) :ArrayList<String> {
