@@ -9,6 +9,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object HttpUtils {
+    //carles te amo
     @Throws(IOException::class)
     fun get(dataUrl: String?): String? {
         val url = URL(dataUrl)

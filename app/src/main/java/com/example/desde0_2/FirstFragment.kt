@@ -1,9 +1,11 @@
 package com.example.desde0_2
 
 import android.R
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +13,13 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.desde0_2.databinding.FragmentFirstBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -24,6 +31,7 @@ class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     lateinit var layView: ListView
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -41,36 +49,19 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        layView=binding.listViewTodo
-        var testTxt: ArrayList<Pokemon> = ArrayList()
+        layView = binding.listViewTodo
 
-        try {
-            var adapter2: ArrayAdapter<Pokemon> = ArrayAdapter<Pokemon>(
-                requireContext(),
-                R.layout.simple_list_item_1,
-                R.id.text1,
-                testTxt
-            )
-            layView.adapter=adapter2
-               refresh(adapter2);
-        }catch(e:Exception){
-            e.printStackTrace()
+        var adapter2 = LayoutPokemonAdapter(requireContext(), ArrayList())
+        layView.adapter = adapter2
+
+        lifecycleScope.launch {
+            val pokemonList = withContext(Dispatchers.IO) { PokeApi().getPokemon() }
+            adapter2.updateData(pokemonList)
         }
 
     }
-    fun refresh(arrAdapter:ArrayAdapter<Pokemon>){
-        var executor:ExecutorService= Executors.newSingleThreadExecutor();
-        var handler:Handler=Handler(Looper.getMainLooper())
-        executor.execute(){
-            var api: PokeApi= PokeApi()
-            var aList: ArrayList<Pokemon>? = api.getPokemon()
-            handler.post {
-                aList?.forEach {
-                    arrAdapter.add(it)
-                }
-            }
-        }
-    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
